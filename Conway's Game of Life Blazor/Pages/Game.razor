@@ -1,34 +1,31 @@
 ﻿@page "/"
 
-<h1>Hello world</h1>
-<h1>@gameGrid.Length</h1>
-
-@for (int i = 0; i < grid; i++)
-{
-    <tr>
-        @for (int j = 0; j < grid; j++)
-        {
-            if (gameGrid[i, j].IsAlive)
+<h1>Conway's Game of Life</h1>
+<table>
+    @for (int i = 0; i < gridX; i++)
+    {
+        <tr>
+            @for (int j = 0; j < gridY; j++)
             {
-                color = "red";
+                <td style="border: 10px; padding: 6px; background-color: @(gameGrid[i, j].IsAlive ? "red" : "black" )"></td>
             }
-            else
-            {
-                color = "black";
-            }
-            <td style="border: 1px solid black; padding: 5px; background-color: @color"></td>
-        }
-    </tr>
-}
-<button @onclick="Update">Update</button>
+        </tr>
+    }
+</table>
+<div style="padding: 15px;">
+    <button @onclick="Update">Reset</button>
+    <button @onclick="StartGame">@((IsRunning ? "Stop" : "Start"))</button>
+</div>
 
-@code 
+@code
 {
-    Cell[,] gameGrid = new Cell[grid, grid];
+    private Cell[,] gameGrid;
     string color = "";
 
-    private static int grid = 30;
-    private bool IsRunning;
+    private static int gridX = 40;
+    private static int gridY = 50;
+    private bool IsRunning = false;
+    private Timer timer;
 
     public record Cell
     {
@@ -38,45 +35,117 @@
         public bool NextState { get; set; }
     }
 
-    //On Initialization we fill our cells list
     protected override void OnInitialized()
-    {  
-        //Fill the matrix of cells
-        for(int i = 0; i < grid; i++)
+    {
+        gameGrid = new Cell[gridX, gridY];
+
+        // Fill our matrix with cells on initialization
+        for (int i = 0; i < gridX; i++)
         {
-            for (int j = 0; j < grid; j++)
+            for (int j = 0; j < gridY; j++)
             {
                 Cell cell = new Cell
-                {
-                     Row = i,
-                     Col = j
-                };
+                    {
+                        Row = i,
+                        Col = j
+                    };
                 gameGrid[i, j] = cell;
             }
         }
+        Update();
     }
+
     private void StartGame()
     {
+        IsRunning = !IsRunning;
 
+        if (IsRunning)
+        {
+            // Start the timer to repeat the action
+            timer = new Timer(state => GenerateNextState(), null, TimeSpan.Zero, TimeSpan.FromSeconds(0.02));
+        }
+        else
+        {
+            // Stop the timer
+            timer?.Dispose();
+        }
     }
+
     private void GenerateNextState()
     {
-
-    }
-    private void AliveNeighbours()
-    {
-
-    }
-    private void Update()
-    {
-        foreach(var cell in gameGrid)
+        // Apply Game of Life rules to our next state.
+        foreach (var cell in gameGrid)
         {
-            cell.IsAlive = false;
+            int alive = AliveNeighbours(cell);
+            if (cell.IsAlive)
+            {
+                if (alive < 2 || alive > 3)
+                {
+                    cell.NextState = false;
+                }
+                else
+                {
+                    cell.NextState = true;
+                }
+            }
+            else
+            {
+                if (alive == 3)
+                {
+                    cell.NextState = true;
+                }
+            }
         }
         foreach (var cell in gameGrid)
         {
+            cell.IsAlive = cell.NextState;
+        }
+        StateHasChanged();
+    }
+
+    private int AliveNeighbours(Cell cell)
+    {
+        int row = cell.Row;
+        int col = cell.Col;
+        int counter = 0;
+
+        // Coordinates of the surrounding indexes.
+        int[] rows = { -1, -1, -1, 0, 0, 1, 1, 1 };
+        int[] cols = { -1, 0, 1, -1, 1, -1, 0, 1 };
+
+        // Check every surrounding index for any alive cells.
+        for (int i = 0; i < 8; i++)
+        {
+            int newRow = row + rows[i];
+            int newCol = col + cols[i];
+
+            if (IsValidIndex(newRow, newCol) && gameGrid[newRow, newCol].IsAlive)
+            {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    private static bool IsValidIndex(int row, int col)
+    {
+        // Check if index is out of range.
+        return row >= 0 && row < gridX && col >= 0 && col < gridY;
+    }
+
+    private void Update()
+    {
+        // Clear the grid.
+        foreach (var cell in gameGrid)
+        {
+            cell.IsAlive = false;
+        }
+
+        // Initialize starting grid at random.
+        foreach (var cell in gameGrid)
+        {
             Random random = new Random();
-            if (random.Next(100) >= 85)
+            if (random.Next(100) >= 90)
             {
                 cell.IsAlive = true;
             }
