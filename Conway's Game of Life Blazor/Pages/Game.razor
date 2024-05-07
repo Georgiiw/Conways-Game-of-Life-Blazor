@@ -4,17 +4,21 @@
 <table>
     @for (int i = 0; i < gridX; i++)
     {
+        int row = i;
         <tr>
             @for (int j = 0; j < gridY; j++)
             {
-                <td style="border: 10px; padding: 6px; background-color: @(gameGrid[i, j].IsAlive ? "red" : "black" )"></td>
+                int col = j;
+                <td @onclick="() => MakeAlive(row, col)" style="border: 10px; padding: 6px; background-color: @(gameGrid[i, j].IsAlive ? "red" : "black" )"></td>
             }
         </tr>
     }
 </table>
 <div style="padding: 15px;">
-    <button @onclick="Update">Reset</button>
-    <button @onclick="StartGame">@((IsRunning ? "Stop" : "Start"))</button>
+    <button @onclick="Reset">Reset</button>
+    <button @onclick="Update">Reset with random values</button>
+    <button @onclick="StartGame">@((IsRunning ? "Pause" : "Start"))</button>
+    <button @onclick="GenerateNextState">One step forward</button>
 </div>
 
 @code
@@ -35,6 +39,18 @@
         public bool NextState { get; set; }
     }
 
+    private void MakeAlive(int row, int col)
+    {        
+        if (!gameGrid[row, col].IsAlive)
+        {
+            gameGrid[row, col].IsAlive = true;
+        }
+        else
+        {
+            gameGrid[row, col].IsAlive = false;          
+        }
+    }
+
     protected override void OnInitialized()
     {
         gameGrid = new Cell[gridX, gridY];
@@ -52,7 +68,6 @@
                 gameGrid[i, j] = cell;
             }
         }
-        Update();
     }
 
     private void StartGame()
@@ -134,11 +149,11 @@
     }
 
     private void Update()
-    {
-        // Clear the grid.
+    {      
         foreach (var cell in gameGrid)
         {
             cell.IsAlive = false;
+            cell.NextState = false;
         }
 
         // Initialize starting grid at random.
@@ -150,5 +165,16 @@
                 cell.IsAlive = true;
             }
         }
+    }
+    private void Reset()
+    {
+        // Clear the grid.
+        foreach (var cell in gameGrid)
+        {
+            cell.IsAlive = false;
+            cell.NextState = false;
+        }
+        IsRunning = false;
+        timer?.Dispose();
     }
 }
