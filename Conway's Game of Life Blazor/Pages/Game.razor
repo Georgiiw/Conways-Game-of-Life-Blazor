@@ -36,6 +36,11 @@
         <button @onclick="ChangeModeSingleCell">Single cell</button>
         <button @onclick="ChangeModeGlider">Glider</button>
         <button @onclick="ChangeModeRpentomino">R-pentomino</button>
+
+    </div>
+    <div class="column">
+        <p>Auto-set Patterns</p>       
+        <button @onclick="GosperGliderGun">Gosper Glider Gun</button>
     </div>
 </div>
 
@@ -278,5 +283,29 @@
             gameGrid[row - 1, col].IsAlive = true;
             gameGrid[row - 1, col + 1].IsAlive = true;
         }
+    }
+
+    private void GosperGliderGun()
+    {
+        Reset();
+        int row = 30;
+        int col = 8;
+
+        // Row coordinates
+        int[] intX = { row, row, row - 1, row - 1, row - 1, row - 1, row - 2, row - 2,
+            row + 2, row + 3, row - 2, row - 3, row + 2, row - 2, row, row, row + 1, 
+            row + 1, row - 1, row - 1, row, row, row + 1, row + 1, row - 1, row - 1,
+            row - 2,row - 2,row - 2,row - 2,row - 3,row - 3,row - 4,row - 4,row - 5,row - 5};
+
+        // Col coordinates
+        int[] intY = { col, col - 1, col, col - 1, col + 33, col + 34, col + 33, col + 34,
+           col + 10,col + 10,col + 10,col + 10,col + 12,col + 12,col + 13,col + 14,col + 13,col + 14,
+           col + 13,col + 14,col + 19,col + 23,col + 22,col + 21,col + 18,col + 24,col + 18,col + 17,
+           col + 24,col + 20,col + 24,col + 18,col + 23,col + 19,col + 22,col + 21};
+
+        for(int i = 0; i < intX.Length; i++)
+        {
+            gameGrid[intX[i], intY[i]].IsAlive = true;
+        }      
     }
 }
