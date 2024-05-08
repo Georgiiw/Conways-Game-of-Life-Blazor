@@ -9,22 +9,25 @@
             @for (int j = 0; j < gridY; j++)
             {
                 int col = j;
-                <td @onclick="() => MakeAlive(row, col)" style="border: 1px solid rgb(26, 26, 26); padding: 6px; background-color: @(gameGrid[i, j].IsAlive ? "#f2f2f2" : "black" )"></td>
+                <td @onclick="() => MakeAlive(row, col)" style="border: 1px solid rgb(26, 26, 26); padding: 6px; background-color: @(gameGrid[i, j].IsAlive ? color : "black" )"></td>
             }
         </tr>
     }
 </table>
-<div style="padding: 15px;">
+<div style="padding-top: 15px;">
     <button @onclick="Reset">Reset</button>
     <button @onclick="Update">Reset with random values</button>
     <button @onclick="StartGame">@((IsRunning ? "Pause" : "Start"))</button>
     <button @onclick="GenerateNextState">One step forward</button>
 </div>
-
+<div>
+    <p>Change color</p>
+    <button @onclick="ChangeColor">@((color == "red" ? "White" : "Red"))</button>
+</div>
 @code
 {
     private Cell[,] gameGrid;
-    string color = "";
+    string color = "#f2f2f2";
 
     private static int gridX = 40;
     private static int gridY = 50;
@@ -166,6 +169,7 @@
             }
         }
     }
+
     private void Reset()
     {
         // Clear the grid.
@@ -177,4 +181,17 @@
         IsRunning = false;
         timer?.Dispose();
     }
+
+    private async Task ChangeColor()
+    {
+        if (color == "#f2f2f2")
+        {
+            color = "red";
+
+        }
+        else
+        {
+            color = "#f2f2f2";
+        }
+    }    
 }
