@@ -15,16 +15,27 @@
     }
 </table>
 <div style="padding-top: 15px;">
-    <button @onclick="Reset">Reset</button>
-    <button @onclick="Update">Reset with random values</button>
-    <button @onclick="StartGame">@((IsRunning ? "Pause" : "Start"))</button>
-    <button @onclick="GenerateNextState">One step forward</button>
-    <button @onclick="ChaneMode">@((FreeMode ? "Free" : "Figure"))</button>
 </div>
-<div>
-    <p>Change color</p>
-    <button @onclick="ChangeColor">@((color == "red" ? "White" : "Red"))</button>
+
+<div class="row" style="display: grid; justify-content: center; grid-auto-flow: column;gap: 20px;">
+    <div class="column" style="float: left;">
+        <p>Game Controls</p>
+        <button @onclick="Reset">Reset</button>
+        <button @onclick="Update">Reset with random values</button>
+        <button @onclick="StartGame">@((IsRunning ? "Pause" : "Start"))</button>
+        <button @onclick="GenerateNextState">One step forward</button>
+        <button @onclick="ChaneMode">@((FreeMode ? "Free" : "Figure"))</button>
+    </div>
+    <div class="column" style="float: left;">
+        <p>Change color</p>
+        <button @onclick="ChangeColor">@((color == "red" ? "White" : "Red"))</button>
+
+    </div>
+    <div class="column" style="float: left;">
+        <p>Patterns</p>       
+    </div>
 </div>
+
 @code
 {
     private Cell[,] gameGrid;
@@ -46,14 +57,14 @@
     }
 
     private void MakeAlive(int row, int col)
-    {        
+    {
         if (!gameGrid[row, col].IsAlive)
         {
             gameGrid[row, col].IsAlive = true;
         }
         else
         {
-            gameGrid[row, col].IsAlive = false;          
+            gameGrid[row, col].IsAlive = false;
         }
     }
 
@@ -155,7 +166,7 @@
     }
 
     private void Update()
-    {      
+    {
         foreach (var cell in gameGrid)
         {
             cell.IsAlive = false;
@@ -196,11 +207,11 @@
         {
             color = "#f2f2f2";
         }
-    }    
+    }
 
     private void ChaneMode()
     {
-        if(FreeMode)
+        if (FreeMode)
         {
             FreeMode = false;
         }
@@ -213,20 +224,20 @@
     private void MakeAGlider(int row, int col)
     {
         // Reset();
-        if (!gameGrid[row, col].IsAlive && IsValidIndex(row, col -2) && IsValidIndex(row - 2, col))
+        if (!gameGrid[row, col].IsAlive && IsValidIndex(row, col - 2) && IsValidIndex(row - 2, col))
         {
             gameGrid[row, col].IsAlive = true;
             gameGrid[row, col - 1].IsAlive = true;
             gameGrid[row - 1, col - 2].IsAlive = true;
             gameGrid[row - 1, col].IsAlive = true;
             gameGrid[row - 2, col].IsAlive = true;
-        }             
+        }
     }
 
     private void DoAction(int row, int col)
     {
 
-        if(FreeMode)
+        if (FreeMode)
         {
             MakeAlive(row, col);
         }
