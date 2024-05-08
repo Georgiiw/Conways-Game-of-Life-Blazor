@@ -24,15 +24,18 @@
         <button @onclick="Update">Reset with random values</button>
         <button @onclick="StartGame">@((IsRunning ? "Pause" : "Start"))</button>
         <button @onclick="GenerateNextState">One step forward</button>
-        <button @onclick="ChaneMode">@((FreeMode ? "Free" : "Figure"))</button>
     </div>
-    <div class="column" style="float: left;">
+    <div class="column">
         <p>Change color</p>
         <button @onclick="ChangeColor">@((color == "red" ? "White" : "Red"))</button>
+        
 
     </div>
-    <div class="column" style="float: left;">
-        <p>Patterns</p>       
+    <div class="column" style="display: grid; gap: 3px;">
+        <p>Patterns</p>   
+        <button @onclick="ChangeModeSingleCell">Single cell</button>
+        <button @onclick="ChangeModeGlider">Glider</button>
+        <button @onclick="ChangeModeRpentomino">R-pentomino</button>
     </div>
 </div>
 
@@ -41,7 +44,7 @@
     private Cell[,] gameGrid;
     string color = "#f2f2f2";
 
-    private bool FreeMode = true;
+    private string Mode = "";
 
     private static int gridX = 40;
     private static int gridY = 50;
@@ -209,15 +212,43 @@
         }
     }
 
-    private void ChaneMode()
+    private void ChangeModeSingleCell()
     {
-        if (FreeMode)
+        if (Mode != "")
         {
-            FreeMode = false;
+            Mode = "";
+        }       
+    }
+    private void ChangeModeGlider()
+    {
+        if (Mode != "MakeAGlider")
+        {
+            Mode = "MakeAGlider";
         }
-        else
+    }
+    private void ChangeModeRpentomino()
+    {
+        if (Mode != "Rpentomino")
         {
-            FreeMode = true;
+            Mode = "Rpentomino";
+        }
+    }
+
+    private void DoAction(int row, int col)
+    {
+        //Select a pattern depending on the choosen Mode
+
+        if (Mode == "")
+        {
+            MakeAlive(row, col);
+        }
+        else if(Mode == "MakeAGlider")
+        {
+            MakeAGlider(row, col);
+        }
+        else if (Mode == "Rpentomino")
+        {
+            RpentominoPattern(row, col);
         }
     }
 
@@ -231,19 +262,21 @@
             gameGrid[row - 1, col - 2].IsAlive = true;
             gameGrid[row - 1, col].IsAlive = true;
             gameGrid[row - 2, col].IsAlive = true;
-        }
+        }      
     }
 
-    private void DoAction(int row, int col)
+    private void RpentominoPattern(int row, int col)
     {
-
-        if (FreeMode)
+        // int row = gridX / 2;
+        // int col = gridY / 2;
+        // Reset();
+        if (!gameGrid[row, col].IsAlive && IsValidIndex(row - 1, col + 1) && IsValidIndex(row, col - 1) && IsValidIndex(row + 1, col))
         {
-            MakeAlive(row, col);
-        }
-        else
-        {
-            MakeAGlider(row, col);
+            gameGrid[row, col].IsAlive = true;
+            gameGrid[row, col - 1].IsAlive = true;
+            gameGrid[row + 1, col].IsAlive = true;
+            gameGrid[row - 1, col].IsAlive = true;
+            gameGrid[row - 1, col + 1].IsAlive = true;
         }
     }
 }
