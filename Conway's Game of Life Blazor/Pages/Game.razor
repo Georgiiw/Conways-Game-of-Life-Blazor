@@ -1,7 +1,7 @@
 ﻿@page "/"
 
 <h1>Conway's Game of Life</h1>
-<table>
+<table style="border-spacing: unset;">
     @for (int i = 0; i < gridX; i++)
     {
         int row = i;
@@ -9,7 +9,7 @@
             @for (int j = 0; j < gridY; j++)
             {
                 int col = j;
-                <td @onclick="() => MakeAlive(row, col)" style="border: 10px; padding: 6px; background-color: @(gameGrid[i, j].IsAlive ? "red" : "black" )"></td>
+                <td @onclick="() => MakeAlive(row, col)" style="border: 1px solid rgb(26, 26, 26); padding: 6px; background-color: @(gameGrid[i, j].IsAlive ? "#f2f2f2" : "black" )"></td>
             }
         </tr>
     }
