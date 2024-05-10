@@ -1,6 +1,7 @@
 ﻿@page "/"
 
 <h1>Conway's Game of Life</h1>
+<h2>Generation: @generation</h2>
 <table style="border-spacing: unset;">
     @for (int i = 0; i < gridX; i++)
     {
@@ -47,13 +48,15 @@
 @code
 {
     private Cell[,] gameGrid;
-    string color = "#f2f2f2";
+    string color = "red";
 
     private string Mode = "";
 
     private static int gridX = 40;
     private static int gridY = 50;
+    private int generation = 0;
     private bool IsRunning = false;
+    private Random random = new Random();
     private Timer timer;
 
     public record Cell
@@ -73,6 +76,7 @@
         else
         {
             gameGrid[row, col].IsAlive = false;
+            gameGrid[row, col].NextState = false;
         }
     }
 
@@ -140,6 +144,7 @@
         {
             cell.IsAlive = cell.NextState;
         }
+        generation++;
         StateHasChanged();
     }
 
@@ -180,16 +185,17 @@
             cell.IsAlive = false;
             cell.NextState = false;
         }
+        generation = 0;
 
-        // Initialize starting grid at random.
+        // Generate random cells.
         foreach (var cell in gameGrid)
         {
-            Random random = new Random();
-            if (random.Next(100) >= 90)
+            if (random.Next(100) >= 80)
             {
                 cell.IsAlive = true;
             }
         }
+        StateHasChanged();
     }
 
     private void Reset()
@@ -202,19 +208,21 @@
         }
         IsRunning = false;
         timer?.Dispose();
+        generation = 0;
     }
 
     private async Task ChangeColor()
     {
-        if (color == "#f2f2f2")
+        if (color == "red")
         {
-            color = "red";
+            color = "#f2f2f2";
 
         }
         else
         {
-            color = "#f2f2f2";
+            color = "red";
         }
+        StateHasChanged();
     }
 
     private void ChangeModeSingleCell()
