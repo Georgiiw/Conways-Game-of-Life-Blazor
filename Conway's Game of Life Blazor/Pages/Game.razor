@@ -10,7 +10,7 @@
             @for (int j = 0; j < gridY; j++)
             {
                 int col = j;
-                <td @onclick="() => DoAction(row, col)" style="border: 1px solid rgb(26, 26, 26); padding: 6px; background-color: @(gameGrid[i, j].IsAlive ? color : "black" )"></td>
+                <td @onclick="() => DoAction(row, col)" style="border: 1px solid rgb(26, 26, 26); padding: 6px; background-color: @(grid.GameGrid[i, j].IsAlive ? color : "black" )"></td>
             }
         </tr>
     }
@@ -47,9 +47,9 @@
 
 @code
 {
-    private Cell[,] gameGrid;
-    string color = "red";
+    private Grid grid;
 
+    string color = "red";
     private string Mode = "";
 
     private static int gridX = 40;
@@ -60,30 +60,24 @@
     private Random random = new Random();
     private Timer timer;
 
-    public record Cell
-    {
-        public int Row { get; set; }
-        public int Col { get; set; }
-        public bool IsAlive { get; set; }
-        public bool NextState { get; set; }
-    }
+
 
     private void MakeAlive(int row, int col)
     {
-        if (!gameGrid[row, col].IsAlive)
+        if (!grid.GameGrid[row, col].IsAlive)
         {
-            gameGrid[row, col].IsAlive = true;
+            grid.GameGrid[row, col].IsAlive = true;
         }
         else
         {
-            gameGrid[row, col].IsAlive = false;
-            gameGrid[row, col].NextState = false;
+            grid.GameGrid[row, col].IsAlive = false;
+            grid.GameGrid[row, col].NextState = false;
         }
     }
 
     protected override void OnInitialized()
     {
-        gameGrid = new Cell[gridX, gridY];
+        grid = new Grid(gridX, gridY);
 
         // Fill our matrix with cells on initialization
         for (int i = 0; i < gridX; i++)
@@ -93,9 +87,11 @@
                 Cell cell = new Cell
                     {
                         Row = i,
-                        Col = j
-                    };
-                gameGrid[i, j] = cell;
+                        Col = j,
+                        IsAlive = false,
+                        NextState = false
+                };
+                grid.GameGrid[i, j] = cell;
             }
         }
     }
@@ -119,7 +115,7 @@
     private void GenerateNextState()
     {
         // Apply Game of Life rules to our next state.
-        foreach (var cell in gameGrid)
+        foreach (var cell in grid.GameGrid)
         {
             int alive = AliveNeighbours(cell);
             if (cell.IsAlive)
@@ -143,7 +139,7 @@
                 }
             }
         }
-        foreach (var cell in gameGrid)
+        foreach (var cell in grid.GameGrid)
         {
             cell.IsAlive = cell.NextState;
         }
@@ -171,7 +167,7 @@
             int newRow = row + rows[i];
             int newCol = col + cols[i];
 
-            if (IsValidIndex(newRow, newCol) && gameGrid[newRow, newCol].IsAlive)
+            if (IsValidIndex(newRow, newCol) && grid.GameGrid[newRow, newCol].IsAlive)
             {
                 counter++;
             }
@@ -187,7 +183,7 @@
 
     private void Update()
     {
-        foreach (var cell in gameGrid)
+        foreach (var cell in grid.GameGrid)
         {
             cell.IsAlive = false;
             cell.NextState = false;
@@ -195,7 +191,7 @@
         generation = 0;
 
         // Generate random cells.
-        foreach (var cell in gameGrid)
+        foreach (var cell in grid.GameGrid)
         {
             if (random.Next(100) >= 80)
             {
@@ -208,7 +204,7 @@
     private void Reset()
     {
         // Clear the grid.
-        foreach (var cell in gameGrid)
+        foreach (var cell in grid.GameGrid)
         {
             cell.IsAlive = false;
             cell.NextState = false;
@@ -275,13 +271,13 @@
     private void MakeAGlider(int row, int col)
     {
         // Reset();
-        if (!gameGrid[row, col].IsAlive && IsValidIndex(row, col - 2) && IsValidIndex(row - 2, col))
+        if (!grid.GameGrid[row, col].IsAlive && IsValidIndex(row, col - 2) && IsValidIndex(row - 2, col))
         {
-            gameGrid[row, col].IsAlive = true;
-            gameGrid[row, col - 1].IsAlive = true;
-            gameGrid[row - 1, col - 2].IsAlive = true;
-            gameGrid[row - 1, col].IsAlive = true;
-            gameGrid[row - 2, col].IsAlive = true;
+            grid.GameGrid[row, col].IsAlive = true;
+            grid.GameGrid[row, col - 1].IsAlive = true;
+            grid.GameGrid[row - 1, col - 2].IsAlive = true;
+            grid.GameGrid[row - 1, col].IsAlive = true;
+            grid.GameGrid[row - 2, col].IsAlive = true;
         }      
     }
 
@@ -290,13 +286,13 @@
         // int row = gridX / 2;
         // int col = gridY / 2;
         // Reset();
-        if (!gameGrid[row, col].IsAlive && IsValidIndex(row - 1, col + 1) && IsValidIndex(row, col - 1) && IsValidIndex(row + 1, col))
+        if (!grid.GameGrid[row, col].IsAlive && IsValidIndex(row - 1, col + 1) && IsValidIndex(row, col - 1) && IsValidIndex(row + 1, col))
         {
-            gameGrid[row, col].IsAlive = true;
-            gameGrid[row, col - 1].IsAlive = true;
-            gameGrid[row + 1, col].IsAlive = true;
-            gameGrid[row - 1, col].IsAlive = true;
-            gameGrid[row - 1, col + 1].IsAlive = true;
+            grid.GameGrid[row, col].IsAlive = true;
+            grid.GameGrid[row, col - 1].IsAlive = true;
+            grid.GameGrid[row + 1, col].IsAlive = true;
+            grid.GameGrid[row - 1, col].IsAlive = true;
+            grid.GameGrid[row - 1, col + 1].IsAlive = true;
         }
     }
 
@@ -320,7 +316,7 @@
 
         for(int i = 0; i < intX.Length; i++)
         {
-            gameGrid[intX[i], intY[i]].IsAlive = true;
+            grid.GameGrid[intX[i], intY[i]].IsAlive = true;
         }      
     }
 }
